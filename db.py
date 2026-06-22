@@ -11,22 +11,7 @@ def connect_db():
 
 def setup_database(conn):
     conn.executescript("""
-    -- TODO: Create books table
-    DROP TABLE IF EXISTS books;
-    CREATE TABLE books (
-    book_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
-    );
     
-    -- TODO: Create members table
-    DROP TABLE IF EXISTS members;
-    create table members (
-    member_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    book_id INTEGER NOT NULL,
-    FOREIGN KEY (book_id) REFERENCES books (book_id)
-    );
     
     -- TODO: Create loans table
     DROP TABLE IF EXISTS loans;
@@ -39,9 +24,25 @@ def setup_database(conn):
     CONSTRAINT loan_amount_is_more_than_zero CHECK (loan_amount > 0),
     CONSTRAINT interest_rate_is_not_a_negative_num CHECK (interest_rate >= 0),
     CONSTRAINT loan_status_is_valid CHECK (loan_status IN ('APPROVED', 'PENDING', 'REJECTED', 'RETURNED'))
-    
     );
-
+    
+    -- TODO: Create members table
+    DROP TABLE IF EXISTS members;
+    create table members (
+    member_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    book_id INTEGER NOT NULL,
+    FOREIGN KEY (book_id) REFERENCES books (book_id)
+    );
+    
+    -- TODO: Create books table
+    DROP TABLE IF EXISTS books;
+    CREATE TABLE books (
+    book_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL
+    );
+    
     -- TODO: Create loan_audit table
     DROP TABLE IF EXISTS loan_audit;
     CREATE TABLE loan_audit(
@@ -149,7 +150,6 @@ def create_index(conn):
 
 def create_reports(conn):
     print("Active loans:")
-
     rows = conn.execute("""
     -- TODO: Join books, members, and loans
     -- showing which member borrowed which book
@@ -168,12 +168,14 @@ def create_reports(conn):
         WHERE email = 'zack@email.com';
     """).fetchone()
 
-    for row in rows:
-        print(dict(row))
-
     for loan in active_loans:
         print(dict(loan))
 
+    print("members and the books they borrowed")
+    for row in rows:
+        print(dict(row))
+
+    print("zacks info")
     print(dict(zacks_info))
 
 def main():
